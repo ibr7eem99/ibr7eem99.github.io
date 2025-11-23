@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSAR - Opening App...</title>
+    <title>MSAR - Open App</title>
     
     <!-- iOS Smart Banner -->
     <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID, app-argument=msar://">
@@ -47,12 +47,6 @@
             font-size: 50px;
             font-weight: bold;
             color: white;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
         
         h1 {
@@ -67,64 +61,30 @@
             font-size: 16px;
         }
         
-        .status {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 15px;
-        }
-        
-        .status.checking {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-        
-        .status.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .status.redirect {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 16px 32px;
+        .btn-large {
+            display: block;
+            width: 100%;
+            padding: 20px 32px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             text-decoration: none;
             border-radius: 12px;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 18px;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             border: none;
             cursor: pointer;
-            margin: 10px;
+            margin-bottom: 15px;
         }
         
-        .btn:hover {
+        .btn-large:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-large:active {
+            transform: translateY(0);
         }
         
         .btn-secondary {
@@ -134,20 +94,45 @@
         }
         
         .hidden {
-            display: none;
+            display: none !important;
         }
 
-        .info-text {
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
             font-size: 14px;
-            color: #999;
-            margin-top: 20px;
+            color: #1565c0;
         }
 
-        .countdown {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 20px 0;
+        }
+
+        .small-text {
+            font-size: 13px;
+            color: #999;
+            margin-top: 15px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -155,313 +140,172 @@
     <div class="container">
         <div class="app-icon">M</div>
         <h1>MSAR</h1>
-        <p class="subtitle">Opening your app...</p>
+        <p class="subtitle">Choose how to continue</p>
         
-        <div id="statusChecking" class="status checking">
+        <div class="info-box">
+            <strong>✨ Best Experience:</strong> Open in the MSAR app for full features and better performance!
+        </div>
+        
+        <!-- Main action button -->
+        <button id="openAppBtn" class="btn-large">
+            📱 Open in MSAR App
+        </button>
+        
+        <!-- Loading state -->
+        <button id="loadingBtn" class="btn-large hidden" disabled>
             <span class="loading"></span>
-            Attempting to open MSAR app...
-        </div>
+            Opening MSAR...
+        </button>
         
-        <div id="statusSuccess" class="status success hidden">
-            ✅ Opening MSAR app...
-        </div>
+        <!-- Fallback button -->
+        <a id="storeBtn" href="https://play.google.com/store/apps/details?id=com.msar.app" 
+           class="btn-large btn-secondary hidden" 
+           target="_blank">
+            🏪 Get MSAR from Play Store
+        </a>
         
-        <div id="statusRedirect" class="status redirect hidden">
-            📱 App not installed. Redirecting to Google Play Store in...
-            <div class="countdown" id="countdown">5</div>
-        </div>
+        <div class="divider"></div>
         
-        <div id="manualButtons" class="hidden">
-            <a id="openAppBtn" href="msar://" class="btn">
-                Try Opening App Again
-            </a>
-            <a id="playStoreBtn" href="https://play.google.com/store/apps/details?id=com.msar.app" class="btn btn-secondary" target="_blank">
-                Open Google Play Store
-            </a>
-            <button id="cancelBtn" class="btn btn-secondary">
-                Cancel Redirect
-            </button>
-        </div>
-        
-        <p class="info-text">
-            If nothing happens, please install MSAR from Google Play Store
+        <p class="small-text">
+            Don't have the app? <a href="https://play.google.com/store/apps/details?id=com.msar.app" target="_blank" style="color: #667eea;">Download from Play Store</a>
         </p>
     </div>
 
     <script>
         const CONFIG = {
-            // Deep link schemes
             customScheme: 'msar://',
             packageName: 'com.msar.app',
-            
-            // Store URLs
             playStoreUrl: 'https://play.google.com/store/apps/details?id=com.msar.app',
             appStoreUrl: 'https://apps.apple.com/app/idYOUR_APP_ID',
             
-            // Timing - INCREASED for better detection
-            appCheckTimeout: 3000,  // Increased to 3 seconds
-            redirectDelay: 5000,    // 5 seconds countdown before redirect
-            
-            // API (optional)
-            apiUrl: 'https://api.yourdomain.com/api/deeplink/track'
+            // MUCH LONGER timeout - gives app plenty of time to open
+            fallbackDelay: 1500,  // Show fallback button after 1.5 seconds
         };
 
-        // DOM Elements
-        const statusChecking = document.getElementById('statusChecking');
-        const statusSuccess = document.getElementById('statusSuccess');
-        const statusRedirect = document.getElementById('statusRedirect');
-        const manualButtons = document.getElementById('manualButtons');
-        const countdownEl = document.getElementById('countdown');
-        const cancelBtn = document.getElementById('cancelBtn');
+        const openAppBtn = document.getElementById('openAppBtn');
+        const loadingBtn = document.getElementById('loadingBtn');
+        const storeBtn = document.getElementById('storeBtn');
+        
+        let fallbackTimer = null;
+        let hasLeftPage = false;
 
-        let redirectTimer = null;
-        let countdownInterval = null;
-
-        // Detect mobile OS
         function getMobileOS() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            
-            if (/android/i.test(userAgent)) {
-                return 'Android';
-            }
-            
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                return 'iOS';
-            }
-            
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            if (/android/i.test(ua)) return 'Android';
+            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'iOS';
             return 'Other';
         }
 
-        // Track deep link attempt
-        function trackAttempt(hasApp) {
-            fetch(CONFIG.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    url: window.location.href,
-                    platform: getMobileOS(),
-                    hasApp: hasApp,
-                    userAgent: navigator.userAgent,
-                    timestamp: new Date().toISOString()
-                })
-            }).catch(err => console.log('Tracking failed:', err));
-        }
-
-        // Attempt to open the app
-        function attemptToOpenApp() {
+        function tryOpenApp() {
             const os = getMobileOS();
-            const startTime = Date.now();
-            let appOpened = false;
-
-            console.log('=== MSAR Deep Link Debug ===');
+            
+            console.log('=== Attempting to open MSAR ===');
             console.log('Platform:', os);
-            console.log('Custom Scheme:', CONFIG.customScheme);
             console.log('Time:', new Date().toISOString());
-
-            // Track visibility changes - MORE SENSITIVE
-            const visibilityHandler = () => {
-                if (document.hidden || document.webkitHidden) {
-                    console.log('✅ Document hidden - App opened!');
-                    appOpened = true;
-                    showAppOpened();
+            
+            // Show loading state
+            openAppBtn.classList.add('hidden');
+            loadingBtn.classList.remove('hidden');
+            storeBtn.classList.add('hidden');
+            
+            // Track if user leaves the page (app opened)
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    console.log('✅ User left page - app opened!');
+                    hasLeftPage = true;
+                    clearTimeout(fallbackTimer);
+                    loadingBtn.textContent = '✅ Opening MSAR...';
                 }
             };
 
-            const blurHandler = () => {
-                console.log('✅ Window blur - App opened!');
-                appOpened = true;
-                showAppOpened();
+            const handlePageHide = () => {
+                console.log('✅ Page hide event - app opened!');
+                hasLeftPage = true;
+                clearTimeout(fallbackTimer);
             };
 
-            const pagehideHandler = () => {
-                console.log('✅ Page hide - App opened!');
-                appOpened = true;
+            const handleBlur = () => {
+                console.log('✅ Window blur - app might have opened');
+                // Don't set hasLeftPage on blur alone, only visibility change
             };
 
-            // Add all listeners
-            document.addEventListener('visibilitychange', visibilityHandler);
-            document.addEventListener('webkitvisibilitychange', visibilityHandler);
-            window.addEventListener('blur', blurHandler);
-            window.addEventListener('pagehide', pagehideHandler);
-
-            // Try to open app
+            // Add listeners
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('pagehide', handlePageHide);
+            window.addEventListener('blur', handleBlur);
+            
+            // Try to open the app
             if (os === 'Android') {
-                console.log('Trying Android intent scheme...');
+                // Method 1: Android Intent (most reliable)
+                console.log('Trying Android intent...');
+                window.location.href = `intent://#Intent;scheme=msar;package=${CONFIG.packageName};end`;
                 
-                // Use Android Intent scheme - MOST RELIABLE for Android
-                const intentUrl = `intent://#Intent;scheme=msar;package=${CONFIG.packageName};end`;
-                console.log('Intent URL:', intentUrl);
-                
-                // Create iframe to trigger app
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = intentUrl;
-                document.body.appendChild(iframe);
-                
-                // Backup: Try custom scheme too
+                // Method 2: Custom scheme as fallback (slight delay)
                 setTimeout(() => {
-                    if (!appOpened) {
-                        console.log('Trying custom scheme as backup...');
+                    if (!hasLeftPage) {
+                        console.log('Trying custom scheme fallback...');
                         window.location.href = CONFIG.customScheme;
                     }
-                }, 500);
-
-                // Clean up iframe
-                setTimeout(() => {
-                    if (iframe.parentNode) {
-                        document.body.removeChild(iframe);
-                    }
-                }, 2000);
+                }, 250);
                 
             } else if (os === 'iOS') {
                 console.log('Trying iOS custom scheme...');
                 window.location.href = CONFIG.customScheme;
             } else {
-                console.log('Desktop detected - showing manual options');
-                showManualOptions();
+                // Desktop - skip to store button
+                console.log('Desktop detected');
+                showFallback();
                 return;
             }
-
-            // Check after timeout if app opened
-            setTimeout(() => {
+            
+            // After delay, show fallback if app didn't open
+            fallbackTimer = setTimeout(() => {
+                console.log('Timeout reached. Has left page:', hasLeftPage);
+                
                 // Remove listeners
-                document.removeEventListener('visibilitychange', visibilityHandler);
-                document.removeEventListener('webkitvisibilitychange', visibilityHandler);
-                window.removeEventListener('blur', blurHandler);
-                window.removeEventListener('pagehide', pagehideHandler);
-
-                const elapsedTime = Date.now() - startTime;
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                window.removeEventListener('pagehide', handlePageHide);
+                window.removeEventListener('blur', handleBlur);
                 
-                console.log('=== Check Results ===');
-                console.log('App Opened:', appOpened);
-                console.log('Document Hidden:', document.hidden);
-                console.log('Elapsed Time:', elapsedTime, 'ms');
-
-                // If app opened, we already showed success
-                if (appOpened || document.hidden) {
-                    console.log('✅ App confirmed opened');
-                    showAppOpened();
-                    trackAttempt(true);
+                if (!hasLeftPage && !document.hidden) {
+                    console.log('❌ App did not open - showing fallback');
+                    showFallback();
                 } else {
-                    // App NOT installed - show redirect with countdown
-                    console.log('❌ App not detected - will redirect to store');
-                    showRedirectToStore(os);
-                    trackAttempt(false);
+                    console.log('✅ App opened successfully');
                 }
-            }, CONFIG.appCheckTimeout);
+            }, CONFIG.fallbackDelay);
         }
 
-        // Show app opened successfully
-        function showAppOpened() {
-            statusChecking.classList.add('hidden');
-            statusSuccess.classList.remove('hidden');
-            statusRedirect.classList.add('hidden');
-            manualButtons.classList.add('hidden');
+        function showFallback() {
+            openAppBtn.classList.add('hidden');
+            loadingBtn.classList.add('hidden');
+            storeBtn.classList.remove('hidden');
             
-            // Cancel any pending redirects
-            if (redirectTimer) {
-                clearTimeout(redirectTimer);
-                redirectTimer = null;
-            }
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-            }
+            // Reset state
+            setTimeout(() => {
+                openAppBtn.classList.remove('hidden');
+                openAppBtn.textContent = '🔄 Try Opening App Again';
+                storeBtn.classList.add('hidden');
+            }, 3000);
         }
 
-        // Show redirect to store message with countdown
-        function showRedirectToStore(os) {
-            statusChecking.classList.add('hidden');
-            statusSuccess.classList.add('hidden');
-            statusRedirect.classList.remove('hidden');
-            manualButtons.classList.remove('hidden');
+        // Button click handler
+        openAppBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            hasLeftPage = false;
+            tryOpenApp();
+        });
 
-            let secondsLeft = Math.floor(CONFIG.redirectDelay / 1000);
-            countdownEl.textContent = secondsLeft;
-
-            // Countdown timer
-            countdownInterval = setInterval(() => {
-                secondsLeft--;
-                countdownEl.textContent = secondsLeft;
-                
-                if (secondsLeft <= 0) {
-                    clearInterval(countdownInterval);
-                }
-            }, 1000);
-
-            // Auto-redirect after delay
-            redirectTimer = setTimeout(() => {
-                if (!document.hidden) {
-                    const storeUrl = os === 'iOS' ? CONFIG.appStoreUrl : CONFIG.playStoreUrl;
-                    console.log('Redirecting to:', storeUrl);
-                    window.location.href = storeUrl;
-                }
-            }, CONFIG.redirectDelay);
-        }
-
-        // Show manual options (for desktop)
-        function showManualOptions() {
-            statusChecking.classList.add('hidden');
-            statusRedirect.innerHTML = '💻 Please open this page on your mobile device';
-            statusRedirect.classList.remove('hidden');
-            manualButtons.classList.remove('hidden');
-            cancelBtn.classList.add('hidden');
-        }
-
-        // Initialize when page loads
+        // Don't auto-open anymore - wait for user click
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded, initializing deep link...');
-            
+            console.log('Page loaded. Waiting for user action...');
             const os = getMobileOS();
             
             if (os === 'Other') {
-                showManualOptions();
-            } else {
-                // Small delay to ensure page is fully loaded
-                setTimeout(() => {
-                    attemptToOpenApp();
-                }, 100);
+                openAppBtn.textContent = '💻 Open on Mobile';
+                document.querySelector('.info-box').innerHTML = 
+                    '<strong>📱 Mobile Required:</strong> Please open this page on your mobile device to use the MSAR app.';
             }
-        });
-
-        // Handle manual button clicks
-        document.getElementById('openAppBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            // Cancel redirect
-            if (redirectTimer) {
-                clearTimeout(redirectTimer);
-            }
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            
-            // Reset UI
-            statusChecking.classList.remove('hidden');
-            statusRedirect.classList.add('hidden');
-            statusSuccess.classList.add('hidden');
-            manualButtons.classList.add('hidden');
-            
-            // Try again
-            setTimeout(() => {
-                attemptToOpenApp();
-            }, 100);
-        });
-
-        // Cancel redirect button
-        cancelBtn.addEventListener('click', () => {
-            if (redirectTimer) {
-                clearTimeout(redirectTimer);
-                redirectTimer = null;
-            }
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-            }
-            
-            statusRedirect.innerHTML = '📱 Redirect cancelled. You can try opening the app again or go to the store manually.';
         });
     </script>
 </body>
