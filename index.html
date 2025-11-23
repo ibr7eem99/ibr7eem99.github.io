@@ -143,24 +143,11 @@
             margin-top: 20px;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            animation: progress 3s ease-out;
-        }
-
-        @keyframes progress {
-            0% { width: 0%; }
-            100% { width: 100%; }
+        .countdown {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -180,10 +167,8 @@
         </div>
         
         <div id="statusRedirect" class="status redirect hidden">
-            📱 App not installed. Redirecting to Google Play Store...
-            <div class="progress-bar">
-                <div class="progress-bar-fill"></div>
-            </div>
+            📱 App not installed. Redirecting to Google Play Store in...
+            <div class="countdown" id="countdown">5</div>
         </div>
         
         <div id="manualButtons" class="hidden">
@@ -193,6 +178,9 @@
             <a id="playStoreBtn" href="https://play.google.com/store/apps/details?id=com.msar.app" class="btn btn-secondary" target="_blank">
                 Open Google Play Store
             </a>
+            <button id="cancelBtn" class="btn btn-secondary">
+                Cancel Redirect
+            </button>
         </div>
         
         <p class="info-text">
@@ -204,15 +192,15 @@
         const CONFIG = {
             // Deep link schemes
             customScheme: 'msar://',
-            httpsScheme: 'https://yourusername.github.io/your-repo-name/', // Update with your actual URL
+            packageName: 'com.msar.app',
             
             // Store URLs
             playStoreUrl: 'https://play.google.com/store/apps/details?id=com.msar.app',
             appStoreUrl: 'https://apps.apple.com/app/idYOUR_APP_ID',
             
-            // Timing
-            appCheckTimeout: 2500, // Time to wait before assuming app is not installed
-            redirectDelay: 3000,    // Time to show message before redirecting to store
+            // Timing - INCREASED for better detection
+            appCheckTimeout: 3000,  // Increased to 3 seconds
+            redirectDelay: 5000,    // 5 seconds countdown before redirect
             
             // API (optional)
             apiUrl: 'https://api.yourdomain.com/api/deeplink/track'
@@ -223,7 +211,11 @@
         const statusSuccess = document.getElementById('statusSuccess');
         const statusRedirect = document.getElementById('statusRedirect');
         const manualButtons = document.getElementById('manualButtons');
-        const playStoreBtn = document.getElementById('playStoreBtn');
+        const countdownEl = document.getElementById('countdown');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        let redirectTimer = null;
+        let countdownInterval = null;
 
         // Detect mobile OS
         function getMobileOS() {
@@ -261,73 +253,102 @@
         function attemptToOpenApp() {
             const os = getMobileOS();
             const startTime = Date.now();
-            let hasFocus = true;
-            let hasRedirected = false;
+            let appOpened = false;
 
-            console.log('Attempting to open MSAR app...');
+            console.log('=== MSAR Deep Link Debug ===');
             console.log('Platform:', os);
+            console.log('Custom Scheme:', CONFIG.customScheme);
+            console.log('Time:', new Date().toISOString());
 
-            // Track page visibility changes
-            const handleVisibilityChange = () => {
-                if (document.hidden) {
-                    hasFocus = false;
-                    console.log('Page hidden - app likely opened');
+            // Track visibility changes - MORE SENSITIVE
+            const visibilityHandler = () => {
+                if (document.hidden || document.webkitHidden) {
+                    console.log('✅ Document hidden - App opened!');
+                    appOpened = true;
+                    showAppOpened();
                 }
             };
 
-            const handleBlur = () => {
-                hasFocus = false;
-                console.log('Page lost focus - app likely opened');
+            const blurHandler = () => {
+                console.log('✅ Window blur - App opened!');
+                appOpened = true;
+                showAppOpened();
             };
 
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            window.addEventListener('blur', handleBlur);
-            window.addEventListener('pagehide', handleBlur);
+            const pagehideHandler = () => {
+                console.log('✅ Page hide - App opened!');
+                appOpened = true;
+            };
 
-            // Try to open app using custom scheme (most reliable)
+            // Add all listeners
+            document.addEventListener('visibilitychange', visibilityHandler);
+            document.addEventListener('webkitvisibilitychange', visibilityHandler);
+            window.addEventListener('blur', blurHandler);
+            window.addEventListener('pagehide', pagehideHandler);
+
+            // Try to open app
             if (os === 'Android') {
-                // Method 1: Try intent scheme (Android)
-                const intentUrl = `intent://#Intent;scheme=msar;package=com.msar.app;end`;
-                window.location.href = intentUrl;
+                console.log('Trying Android intent scheme...');
                 
-                // Fallback to custom scheme after short delay
+                // Use Android Intent scheme - MOST RELIABLE for Android
+                const intentUrl = `intent://#Intent;scheme=msar;package=${CONFIG.packageName};end`;
+                console.log('Intent URL:', intentUrl);
+                
+                // Create iframe to trigger app
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = intentUrl;
+                document.body.appendChild(iframe);
+                
+                // Backup: Try custom scheme too
                 setTimeout(() => {
-                    if (!hasRedirected) {
+                    if (!appOpened) {
+                        console.log('Trying custom scheme as backup...');
                         window.location.href = CONFIG.customScheme;
                     }
-                }, 100);
+                }, 500);
+
+                // Clean up iframe
+                setTimeout(() => {
+                    if (iframe.parentNode) {
+                        document.body.removeChild(iframe);
+                    }
+                }, 2000);
+                
             } else if (os === 'iOS') {
-                // iOS: Use custom scheme
+                console.log('Trying iOS custom scheme...');
                 window.location.href = CONFIG.customScheme;
             } else {
-                // Desktop or unknown: Show manual options
+                console.log('Desktop detected - showing manual options');
                 showManualOptions();
                 return;
             }
 
             // Check after timeout if app opened
             setTimeout(() => {
-                document.removeEventListener('visibilitychange', handleVisibilityChange);
-                window.removeEventListener('blur', handleBlur);
-                window.removeEventListener('pagehide', handleBlur);
+                // Remove listeners
+                document.removeEventListener('visibilitychange', visibilityHandler);
+                document.removeEventListener('webkitvisibilitychange', visibilityHandler);
+                window.removeEventListener('blur', blurHandler);
+                window.removeEventListener('pagehide', pagehideHandler);
 
                 const elapsedTime = Date.now() - startTime;
                 
-                console.log('Check result:', {
-                    hasFocus,
-                    hidden: document.hidden,
-                    elapsedTime
-                });
+                console.log('=== Check Results ===');
+                console.log('App Opened:', appOpened);
+                console.log('Document Hidden:', document.hidden);
+                console.log('Elapsed Time:', elapsedTime, 'ms');
 
-                // If page lost focus or is hidden, assume app opened
-                if (!hasFocus || document.hidden) {
+                // If app opened, we already showed success
+                if (appOpened || document.hidden) {
+                    console.log('✅ App confirmed opened');
                     showAppOpened();
                     trackAttempt(true);
                 } else {
-                    // App not installed - redirect to store
+                    // App NOT installed - show redirect with countdown
+                    console.log('❌ App not detected - will redirect to store');
                     showRedirectToStore(os);
                     trackAttempt(false);
-                    hasRedirected = true;
                 }
             }, CONFIG.appCheckTimeout);
         }
@@ -337,21 +358,41 @@
             statusChecking.classList.add('hidden');
             statusSuccess.classList.remove('hidden');
             statusRedirect.classList.add('hidden');
+            manualButtons.classList.add('hidden');
             
-            console.log('App opened successfully');
+            // Cancel any pending redirects
+            if (redirectTimer) {
+                clearTimeout(redirectTimer);
+                redirectTimer = null;
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
         }
 
-        // Show redirect to store message
+        // Show redirect to store message with countdown
         function showRedirectToStore(os) {
             statusChecking.classList.add('hidden');
             statusSuccess.classList.add('hidden');
             statusRedirect.classList.remove('hidden');
             manualButtons.classList.remove('hidden');
 
-            console.log('App not found, redirecting to store...');
+            let secondsLeft = Math.floor(CONFIG.redirectDelay / 1000);
+            countdownEl.textContent = secondsLeft;
+
+            // Countdown timer
+            countdownInterval = setInterval(() => {
+                secondsLeft--;
+                countdownEl.textContent = secondsLeft;
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
 
             // Auto-redirect after delay
-            setTimeout(() => {
+            redirectTimer = setTimeout(() => {
                 if (!document.hidden) {
                     const storeUrl = os === 'iOS' ? CONFIG.appStoreUrl : CONFIG.playStoreUrl;
                     console.log('Redirecting to:', storeUrl);
@@ -366,6 +407,7 @@
             statusRedirect.innerHTML = '💻 Please open this page on your mobile device';
             statusRedirect.classList.remove('hidden');
             manualButtons.classList.remove('hidden');
+            cancelBtn.classList.add('hidden');
         }
 
         // Initialize when page loads
@@ -375,21 +417,51 @@
             const os = getMobileOS();
             
             if (os === 'Other') {
-                // Desktop - show manual options
                 showManualOptions();
             } else {
-                // Mobile - attempt to open app
-                attemptToOpenApp();
+                // Small delay to ensure page is fully loaded
+                setTimeout(() => {
+                    attemptToOpenApp();
+                }, 100);
             }
         });
 
         // Handle manual button clicks
         document.getElementById('openAppBtn').addEventListener('click', (e) => {
             e.preventDefault();
+            
+            // Cancel redirect
+            if (redirectTimer) {
+                clearTimeout(redirectTimer);
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            // Reset UI
             statusChecking.classList.remove('hidden');
             statusRedirect.classList.add('hidden');
+            statusSuccess.classList.add('hidden');
             manualButtons.classList.add('hidden');
-            attemptToOpenApp();
+            
+            // Try again
+            setTimeout(() => {
+                attemptToOpenApp();
+            }, 100);
+        });
+
+        // Cancel redirect button
+        cancelBtn.addEventListener('click', () => {
+            if (redirectTimer) {
+                clearTimeout(redirectTimer);
+                redirectTimer = null;
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            
+            statusRedirect.innerHTML = '📱 Redirect cancelled. You can try opening the app again or go to the store manually.';
         });
     </script>
 </body>
