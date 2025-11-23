@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSAR - Open App</title>
+    <title>MSAR - Welcome</title>
     
     <!-- iOS Smart Banner -->
-    <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID, app-argument=msar://">
+    <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID">
     
     <style>
         * {
@@ -59,8 +59,19 @@
             color: #666;
             margin-bottom: 30px;
             font-size: 16px;
+            line-height: 1.6;
         }
         
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #1565c0;
+            text-align: left;
+        }
+
         .btn-large {
             display: block;
             width: 100%;
@@ -92,24 +103,49 @@
             color: #333;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        
-        .hidden {
-            display: none !important;
+
+        .links-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
         }
 
-        .info-box {
-            background: #e3f2fd;
+        .links-section h3 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .link-item {
+            display: block;
             padding: 15px;
+            background: #f8f9fa;
             border-radius: 8px;
-            margin: 20px 0;
-            font-size: 14px;
-            color: #1565c0;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.2s;
+        }
+
+        .link-item:hover {
+            background: #e9ecef;
+        }
+
+        .link-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .link-item small {
+            color: #666;
+            font-size: 12px;
         }
 
         .divider {
             height: 1px;
             background: #e0e0e0;
-            margin: 20px 0;
+            margin: 25px 0;
         }
 
         .small-text {
@@ -117,77 +153,66 @@
             color: #999;
             margin-top: 15px;
         }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="app-icon">M</div>
-        <h1>MSAR</h1>
-        <p class="subtitle">Choose how to continue</p>
+        <h1>Welcome to MSAR</h1>
+        <p class="subtitle">
+            Experience the full power of MSAR with our mobile app
+        </p>
         
         <div class="info-box">
-            <strong>✨ Best Experience:</strong> Open in the MSAR app for full features and better performance!
+            <strong>📱 How it works:</strong><br>
+            • If you have the app installed, links will open in the app automatically<br>
+            • If not, you'll be redirected to download from Play Store
         </div>
         
-        <!-- Main action button -->
-        <button id="openAppBtn" class="btn-large">
-            📱 Open in MSAR App
-        </button>
-        
-        <!-- Loading state -->
-        <button id="loadingBtn" class="btn-large hidden" disabled>
-            <span class="loading"></span>
-            Opening MSAR...
-        </button>
-        
-        <!-- Fallback button -->
-        <a id="storeBtn" href="https://play.google.com/store/apps/details?id=com.msar.app" 
-           class="btn-large btn-secondary hidden" 
+        <!-- Download App Button -->
+        <a href="https://play.google.com/store/apps/details?id=com.msar.app" 
+           class="btn-large" 
            target="_blank">
-            🏪 Get MSAR from Play Store
+            🏪 Get MSAR App
         </a>
-        
+
         <div class="divider"></div>
+
+        <!-- Deep Link Examples Section -->
+        <div class="links-section">
+            <h3>Try these links (App required):</h3>
+            
+            <a href="product/123.html" class="link-item">
+                <strong>📦 Product #123</strong>
+                <small>Premium Wireless Headphones</small>
+            </a>
+            
+            <a href="product/456.html" class="link-item">
+                <strong>📦 Product #456</strong>
+                <small>Smart Fitness Watch</small>
+            </a>
+            
+            <a href="profile.html" class="link-item">
+                <strong>👤 My Profile</strong>
+                <small>View your account details</small>
+            </a>
+            
+            <a href="settings.html" class="link-item">
+                <strong>⚙️ Settings</strong>
+                <small>Configure your preferences</small>
+            </a>
+        </div>
         
         <p class="small-text">
-            Don't have the app? <a href="https://play.google.com/store/apps/details?id=com.msar.app" target="_blank" style="color: #667eea;">Download from Play Store</a>
+            Links will open in MSAR app if installed, otherwise in browser
         </p>
     </div>
 
     <script>
+        // Track page views (optional - for analytics)
         const CONFIG = {
-            customScheme: 'msar://',
-            packageName: 'com.msar.app',
-            playStoreUrl: 'https://play.google.com/store/apps/details?id=com.msar.app',
-            appStoreUrl: 'https://apps.apple.com/app/idYOUR_APP_ID',
-            
-            // MUCH LONGER timeout - gives app plenty of time to open
-            fallbackDelay: 1500,  // Show fallback button after 1.5 seconds
+            apiUrl: 'https://api.yourdomain.com/api/deeplink/track'
         };
-
-        const openAppBtn = document.getElementById('openAppBtn');
-        const loadingBtn = document.getElementById('loadingBtn');
-        const storeBtn = document.getElementById('storeBtn');
-        
-        let fallbackTimer = null;
-        let hasLeftPage = false;
 
         function getMobileOS() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -196,116 +221,29 @@
             return 'Other';
         }
 
-        function tryOpenApp() {
-            const os = getMobileOS();
-            
-            console.log('=== Attempting to open MSAR ===');
-            console.log('Platform:', os);
-            console.log('Time:', new Date().toISOString());
-            
-            // Show loading state
-            openAppBtn.classList.add('hidden');
-            loadingBtn.classList.remove('hidden');
-            storeBtn.classList.add('hidden');
-            
-            // Track if user leaves the page (app opened)
-            const handleVisibilityChange = () => {
-                if (document.hidden) {
-                    console.log('✅ User left page - app opened!');
-                    hasLeftPage = true;
-                    clearTimeout(fallbackTimer);
-                    loadingBtn.textContent = '✅ Opening MSAR...';
-                }
-            };
-
-            const handlePageHide = () => {
-                console.log('✅ Page hide event - app opened!');
-                hasLeftPage = true;
-                clearTimeout(fallbackTimer);
-            };
-
-            const handleBlur = () => {
-                console.log('✅ Window blur - app might have opened');
-                // Don't set hasLeftPage on blur alone, only visibility change
-            };
-
-            // Add listeners
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            window.addEventListener('pagehide', handlePageHide);
-            window.addEventListener('blur', handleBlur);
-            
-            // Try to open the app
-            if (os === 'Android') {
-                // Method 1: Android Intent (most reliable)
-                console.log('Trying Android intent...');
-                window.location.href = `intent://#Intent;scheme=msar;package=${CONFIG.packageName};end`;
-                
-                // Method 2: Custom scheme as fallback (slight delay)
-                setTimeout(() => {
-                    if (!hasLeftPage) {
-                        console.log('Trying custom scheme fallback...');
-                        window.location.href = CONFIG.customScheme;
-                    }
-                }, 250);
-                
-            } else if (os === 'iOS') {
-                console.log('Trying iOS custom scheme...');
-                window.location.href = CONFIG.customScheme;
-            } else {
-                // Desktop - skip to store button
-                console.log('Desktop detected');
-                showFallback();
-                return;
-            }
-            
-            // After delay, show fallback if app didn't open
-            fallbackTimer = setTimeout(() => {
-                console.log('Timeout reached. Has left page:', hasLeftPage);
-                
-                // Remove listeners
-                document.removeEventListener('visibilitychange', handleVisibilityChange);
-                window.removeEventListener('pagehide', handlePageHide);
-                window.removeEventListener('blur', handleBlur);
-                
-                if (!hasLeftPage && !document.hidden) {
-                    console.log('❌ App did not open - showing fallback');
-                    showFallback();
-                } else {
-                    console.log('✅ App opened successfully');
-                }
-            }, CONFIG.fallbackDelay);
+        // Optional: Track page visit
+        function trackPageView() {
+            fetch(CONFIG.apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: window.location.href,
+                    platform: getMobileOS(),
+                    userAgent: navigator.userAgent,
+                    timestamp: new Date().toISOString(),
+                    action: 'page_view'
+                })
+            }).catch(err => console.log('Tracking failed:', err));
         }
 
-        function showFallback() {
-            openAppBtn.classList.add('hidden');
-            loadingBtn.classList.add('hidden');
-            storeBtn.classList.remove('hidden');
-            
-            // Reset state
-            setTimeout(() => {
-                openAppBtn.classList.remove('hidden');
-                openAppBtn.textContent = '🔄 Try Opening App Again';
-                storeBtn.classList.add('hidden');
-            }, 3000);
-        }
-
-        // Button click handler
-        openAppBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            hasLeftPage = false;
-            tryOpenApp();
-        });
-
-        // Don't auto-open anymore - wait for user click
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded. Waiting for user action...');
-            const os = getMobileOS();
+            console.log('MSAR Landing Page Loaded');
+            console.log('Platform:', getMobileOS());
             
-            if (os === 'Other') {
-                openAppBtn.textContent = '💻 Open on Mobile';
-                document.querySelector('.info-box').innerHTML = 
-                    '<strong>📱 Mobile Required:</strong> Please open this page on your mobile device to use the MSAR app.';
-            }
+            // Optional: Track page view
+            // trackPageView();
         });
     </script>
 </body>
