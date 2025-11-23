@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Opening App...</title>
-    
+
     <!-- iOS Smart App Banner -->
-    <meta name="apple-itunes-app" content="app-id=6754914067">
-    
+    <meta name="apple-itunes-app" content="app-id=YOUR_IOS_APP_ID">
+
     <style>
         body {
             margin: 0;
@@ -19,17 +20,17 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
+
         .container {
             text-align: center;
             padding: 2rem;
             background: white;
             border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             max-width: 400px;
             margin: 1rem;
         }
-        
+
         .loader {
             width: 50px;
             height: 50px;
@@ -39,24 +40,29 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 1.5rem;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         h1 {
             color: #333;
             font-size: 1.5rem;
             margin-bottom: 1rem;
         }
-        
+
         p {
             color: #666;
             margin-bottom: 1.5rem;
             line-height: 1.6;
         }
-        
+
         .button {
             display: inline-block;
             padding: 12px 32px;
@@ -71,30 +77,31 @@
             border: none;
             font-size: 1rem;
         }
-        
+
         .button:hover {
             background: #5568d3;
         }
-        
+
         .button.secondary {
             background: #764ba2;
         }
-        
+
         .button.secondary:hover {
             background: #653a8b;
         }
-        
+
         #message {
             display: none;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="loader"></div>
         <h1>Opening App...</h1>
         <p id="status">Attempting to open the app. Please wait...</p>
-        
+
         <div id="message">
             <p>Don't have the app yet?</p>
             <button id="playStoreBtn" class="button">Get it on Google Play</button>
@@ -103,27 +110,28 @@
     </div>
 
     <script>
-        // Configuration
+        // Configuration - Replace with your actual values
         const CONFIG = {
             androidPackage: 'com.msar.app',
-            iosAppId: '6754914067',
+            iosAppId: 'com.msar.app',
             playStoreUrl: 'https://play.google.com/store/apps/details?id=com.msar.app',
-            appStoreUrl: 'https://apps.apple.com/app/id6754914067',
-            deepLink: 'https://ibr7eem99.github.io/'
+            appStoreUrl: "https://apps.apple.com/app/com.msar.app/id6754914067",
+            // Intent URL for Android (more reliable)
+            intentUrl: 'intent://ibr7eem99.github.io/#Intent;scheme=https;package=com.msar.app;end'
         };
 
         // Detect user's platform
         function getMobileOS() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            
+
             if (/android/i.test(userAgent)) {
                 return 'Android';
             }
-            
+
             if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
                 return 'iOS';
             }
-            
+
             return 'Other';
         }
 
@@ -140,28 +148,36 @@
         // Try to open the app
         function openApp() {
             const os = getMobileOS();
-            
+
             // Prevent redirect loop
             if (!shouldAttemptOpen()) {
                 showStoreButtons();
                 return;
             }
-            
+
             if (os === 'Android') {
-                // Try to open app with deep link
-                tryOpenApp(CONFIG.deepLink, () => {
-                    // If failed, show store buttons
+                // Use Android Intent URL - this prevents the loop
+                // It will try to open the app, or go to Play Store automatically
+                window.location.href = CONFIG.intentUrl;
+
+                // Fallback: show store buttons after delay
+                setTimeout(() => {
                     showStoreButtons();
-                });
-                
+                }, 3000);
+
             } else if (os === 'iOS') {
-                // For iOS, try Universal Link
-                tryOpenApp(CONFIG.deepLink, () => {
-                    // If failed, show store buttons
-                    // iOS Smart App Banner will also show at top
+                // For iOS, try to open with custom URL scheme if needed
+                // The Smart App Banner will handle the rest
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'https://ibr7eem99.github.io/';
+                document.body.appendChild(iframe);
+
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
                     showStoreButtons();
-                });
-                
+                }, 2000);
+
             } else {
                 // Desktop or other platforms
                 document.querySelector('.loader').style.display = 'none';
@@ -176,62 +192,31 @@
             document.getElementById('message').style.display = 'block';
         }
 
-        // Better app detection - try to open app and detect if it worked
-        function tryOpenApp(deepLink, onFail) {
-            const startTime = Date.now();
-            let hasFocusChanged = false;
-            
-            // Listen for visibility change (happens when app opens)
-            const visibilityHandler = () => {
-                hasFocusChanged = true;
-            };
-            
-            const blurHandler = () => {
-                hasFocusChanged = true;
-            };
-            
-            const pagehideHandler = () => {
-                hasFocusChanged = true;
-            };
-            
-            document.addEventListener('visibilitychange', visibilityHandler);
-            window.addEventListener('blur', blurHandler);
-            window.addEventListener('pagehide', pagehideHandler);
-            
-            // Try to open the app
-            window.location.href = deepLink;
-            
-            // Check after 2.5 seconds if app opened
-            setTimeout(() => {
-                document.removeEventListener('visibilitychange', visibilityHandler);
-                window.removeEventListener('blur', blurHandler);
-                window.removeEventListener('pagehide', pagehideHandler);
-                
-                // If page lost focus or became hidden, app likely opened
-                if (hasFocusChanged || document.hidden) {
-                    console.log('✅ App opened successfully');
-                    return;
-                }
-                
-                // If still here after timeout, app didn't open
-                console.log('❌ App not installed or failed to open');
-                onFail();
-            }, 2500);
-        }
-
         // Try to open app first, then fallback to store
-        function tryOpenAppThenStore(storeUrl) {
+        function tryOpenAppThenStore(storeUrl, intentUrl) {
             const os = getMobileOS();
-            
-            if (os === 'Android' || os === 'iOS') {
-                // Clear the session flag to allow retry
-                sessionStorage.removeItem('appOpenAttempted');
-                
-                tryOpenApp(CONFIG.deepLink, () => {
-                    // App didn't open, go to store
-                    console.log('Redirecting to store...');
-                    window.location.href = storeUrl;
-                });
+
+            if (os === 'Android') {
+                // Try to open the app using Intent URL
+                window.location.href = intentUrl;
+
+                // If app doesn't open in 1.5 seconds, go to Play Store
+                setTimeout(() => {
+                    // Check if page is still visible (app didn't open)
+                    if (!document.hidden) {
+                        window.location.href = storeUrl;
+                    }
+                }, 1500);
+            } else if (os === 'iOS') {
+                // For iOS, try universal link first
+                window.location.href = 'https://ibr7eem99.github.io/';
+
+                // Fallback to App Store
+                setTimeout(() => {
+                    if (!document.hidden) {
+                        window.location.href = storeUrl;
+                    }
+                }, 1500);
             } else {
                 // Desktop - just go to store
                 window.open(storeUrl, '_blank');
@@ -239,14 +224,14 @@
         }
 
         // Set up store button click handlers
-        document.getElementById('playStoreBtn').addEventListener('click', function(e) {
+        document.getElementById('playStoreBtn').addEventListener('click', function (e) {
             e.preventDefault();
-            tryOpenAppThenStore(CONFIG.playStoreUrl);
+            tryOpenAppThenStore(CONFIG.playStoreUrl, CONFIG.intentUrl);
         });
-        
-        document.getElementById('appStoreBtn').addEventListener('click', function(e) {
+
+        document.getElementById('appStoreBtn').addEventListener('click', function (e) {
             e.preventDefault();
-            tryOpenAppThenStore(CONFIG.appStoreUrl);
+            tryOpenAppThenStore(CONFIG.appStoreUrl, 'https://ibr7eem99.github.io/');
         });
 
         // Auto-trigger when page loads
@@ -255,4 +240,5 @@
         });
     </script>
 </body>
+
 </html>
