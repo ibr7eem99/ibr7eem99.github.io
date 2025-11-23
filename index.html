@@ -102,12 +102,12 @@
     <script>
         // Configuration - Replace with your actual values
         const CONFIG = {
-            appScheme: 'yourapp://',  // Your deep link URL scheme (fallback)
-            appLink: 'https://ibr7eem99.github.io/',  // Your app link (HTTPS)
-            androidPackage: 'com.msar.app',
-            iosAppId: 'com.msar.app',
-            playStoreUrl: 'https://play.google.com/store/apps/details?id=com.msar.app',
-            appStoreUrl: 'https://apps.apple.com/app/idcom.msar.app'
+            androidPackage: 'com.yourcompany.yourapp',
+            iosAppId: 'YOUR_IOS_APP_ID',
+            playStoreUrl: 'https://play.google.com/store/apps/details?id=com.yourcompany.yourapp',
+            appStoreUrl: 'https://apps.apple.com/app/idYOUR_IOS_APP_ID',
+            // Intent URL for Android (more reliable)
+            intentUrl: 'intent://ibr7eem99.github.io/#Intent;scheme=https;package=com.yourcompany.yourapp;end'
         };
 
         // Detect user's platform
@@ -125,39 +125,61 @@
             return 'Other';
         }
 
+        // Check if this is the first visit (not a redirect loop)
+        function shouldAttemptOpen() {
+            const hasAttempted = sessionStorage.getItem('appOpenAttempted');
+            if (hasAttempted) {
+                return false;
+            }
+            sessionStorage.setItem('appOpenAttempted', 'true');
+            return true;
+        }
+
         // Try to open the app
         function openApp() {
             const os = getMobileOS();
-            const now = Date.now();
+            
+            // Prevent redirect loop
+            if (!shouldAttemptOpen()) {
+                showStoreButtons();
+                return;
+            }
             
             if (os === 'Android') {
-                // For Android, try app link first
-                window.location.href = CONFIG.appLink;
+                // Use Android Intent URL - this prevents the loop
+                // It will try to open the app, or go to Play Store automatically
+                window.location.href = CONFIG.intentUrl;
                 
-                // If app doesn't open within 2 seconds, redirect to Play Store
+                // Fallback: show store buttons after delay
                 setTimeout(() => {
-                    if (Date.now() - now < 2100) {
-                        window.location.href = CONFIG.playStoreUrl;
-                    }
-                }, 2000);
+                    showStoreButtons();
+                }, 3000);
                 
             } else if (os === 'iOS') {
-                // For iOS, try universal link
-                window.location.href = CONFIG.appLink;
+                // For iOS, try to open with custom URL scheme if needed
+                // The Smart App Banner will handle the rest
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'https://ibr7eem99.github.io/';
+                document.body.appendChild(iframe);
                 
-                // iOS will show the Smart App Banner automatically if app isn't installed
-                // But we can also provide a manual fallback
                 setTimeout(() => {
-                    document.getElementById('message').style.display = 'block';
-                    document.getElementById('status').textContent = 'If the app didn\'t open automatically:';
+                    document.body.removeChild(iframe);
+                    showStoreButtons();
                 }, 2000);
                 
             } else {
                 // Desktop or other platforms
                 document.querySelector('.loader').style.display = 'none';
                 document.getElementById('status').textContent = 'This link is designed for mobile devices.';
-                document.getElementById('message').style.display = 'block';
+                showStoreButtons();
             }
+        }
+
+        function showStoreButtons() {
+            document.querySelector('.loader').style.display = 'none';
+            document.getElementById('status').textContent = 'App not installed? Get it now:';
+            document.getElementById('message').style.display = 'block';
         }
 
         // Set up store buttons
@@ -168,12 +190,6 @@
         window.addEventListener('load', () => {
             setTimeout(openApp, 500);
         });
-
-        // Show store buttons after a delay
-        setTimeout(() => {
-            document.getElementById('message').style.display = 'block';
-            document.getElementById('status').textContent = 'If the app didn\'t open automatically:';
-        }, 3000);
     </script>
 </body>
 </html>
