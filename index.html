@@ -7,7 +7,7 @@
     <title>Opening App...</title>
 
     <!-- iOS Smart App Banner -->
-    <meta name="apple-itunes-app" content="app-id=com.msar.app">
+    <meta name="apple-itunes-app" content="app-id=5UXDJ26446">
 
     <style>
         body {
@@ -110,17 +110,14 @@
     </div>
 
     <script>
-        // Configuration - Replace with your actual values
         const CONFIG = {
             androidPackage: 'com.msar.app',
             iosAppId: 'com.msar.app',
             playStoreUrl: 'https://play.google.com/store/apps/details?id=com.msar.app',
             appStoreUrl: "https://apps.apple.com/app/com.msar.app/id6754914067",
-            // Intent URL for Android (more reliable)
             intentUrl: 'intent://ibr7eem99.github.io/#Intent;scheme=https;package=com.msar.app;end'
         };
 
-        // Detect user's platform
         function getMobileOS() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
@@ -135,7 +132,6 @@
             return 'Other';
         }
 
-        // Check if this is the first visit (not a redirect loop)
         function shouldAttemptOpen() {
             const hasAttempted = sessionStorage.getItem('appOpenAttempted');
             if (hasAttempted) {
@@ -145,29 +141,22 @@
             return true;
         }
 
-        // Try to open the app
         function openApp() {
             const os = getMobileOS();
 
-            // Prevent redirect loop
             if (!shouldAttemptOpen()) {
                 showStoreButtons();
                 return;
             }
 
             if (os === 'Android') {
-                // Use Android Intent URL - this prevents the loop
-                // It will try to open the app, or go to Play Store automatically
                 window.location.href = CONFIG.intentUrl;
 
-                // Fallback: show store buttons after delay
                 setTimeout(() => {
                     showStoreButtons();
                 }, 3000);
 
             } else if (os === 'iOS') {
-                // For iOS, try to open with custom URL scheme if needed
-                // The Smart App Banner will handle the rest
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
                 iframe.src = 'https://ibr7eem99.github.io/';
@@ -197,33 +186,26 @@
             const os = getMobileOS();
 
             if (os === 'Android') {
-                // Try to open the app using Intent URL
                 window.location.href = intentUrl;
 
-                // If app doesn't open in 1.5 seconds, go to Play Store
                 setTimeout(() => {
-                    // Check if page is still visible (app didn't open)
                     if (!document.hidden) {
                         window.location.href = storeUrl;
                     }
                 }, 1500);
             } else if (os === 'iOS') {
-                // For iOS, try universal link first
                 window.location.href = 'https://ibr7eem99.github.io/';
 
-                // Fallback to App Store
                 setTimeout(() => {
                     if (!document.hidden) {
                         window.location.href = storeUrl;
                     }
                 }, 1500);
             } else {
-                // Desktop - just go to store
                 window.open(storeUrl, '_blank');
             }
         }
 
-        // Set up store button click handlers
         document.getElementById('playStoreBtn').addEventListener('click', function (e) {
             e.preventDefault();
             tryOpenAppThenStore(CONFIG.playStoreUrl, CONFIG.intentUrl);
@@ -234,7 +216,6 @@
             tryOpenAppThenStore(CONFIG.appStoreUrl, 'https://ibr7eem99.github.io/');
         });
 
-        // Auto-trigger when page loads
         window.addEventListener('load', () => {
             setTimeout(openApp, 500);
         });
