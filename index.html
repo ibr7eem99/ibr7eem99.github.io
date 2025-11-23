@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Link Test - Home</title>
+
+    <!-- iOS Smart Banner -->
+    <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID, app-argument=myapp://">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .link-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .link-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .link-text {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .link-url {
+            font-size: 12px;
+            opacity: 0.8;
+            font-family: monospace;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #1565c0;
+            margin-bottom: 5px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.checking {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 Deep Link Test Home</h1>
+        <p class="subtitle">Test your Flutter app deep linking</p>
+
+        <div class="info-box">
+            <p><strong>Testing Instructions:</strong></p>
+            <p>1. Install your Flutter app on this device</p>
+            <p>2. Click any link below</p>
+            <p>3. Your app should open to the correct screen</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📱 Custom Scheme Links</div>
+
+            <a href="myapp://" class="link-button">
+                <span class="link-text">Open App Home</span>
+                <span class="link-url">myapp://</span>
+            </a>
+
+            <a href="myapp://product/123" class="link-button">
+                <span class="link-text">Product #123</span>
+                <span class="link-url">myapp://product/123</span>
+            </a>
+
+            <a href="myapp://product/456" class="link-button">
+                <span class="link-text">Product #456</span>
+                <span class="link-url">myapp://product/456</span>
+            </a>
+
+            <a href="myapp://profile" class="link-button">
+                <span class="link-text">Profile Page</span>
+                <span class="link-url">myapp://profile</span>
+            </a>
+
+            <a href="myapp://settings?theme=dark" class="link-button">
+                <span class="link-text">Settings (Dark Theme)</span>
+                <span class="link-url">myapp://settings?theme=dark</span>
+            </a>
+        </div>
+
+        <div class="section">
+            <div class="section-title">🌐 HTTPS Links (Universal Links)</div>
+
+            <a href="product/123.html" class="link-button">
+                <span class="link-text">Product #123 (Web)</span>
+                <span class="link-url">https://yourusername.github.io/deeplink-test/product/123.html</span>
+            </a>
+
+            <a href="product/456.html" class="link-button">
+                <span class="link-text">Product #456 (Web)</span>
+                <span class="link-url">https://yourusername.github.io/deeplink-test/product/456.html</span>
+            </a>
+
+            <a href="profile.html" class="link-button">
+                <span class="link-text">Profile (Web)</span>
+                <span class="link-url">https://yourusername.github.io/deeplink-test/profile.html</span>
+            </a>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+</body>
+
+</html>
