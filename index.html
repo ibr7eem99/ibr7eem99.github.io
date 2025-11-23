@@ -7,7 +7,7 @@
     <title>Opening App...</title>
 
     <!-- iOS Smart App Banner -->
-    <meta name="apple-itunes-app" content="app-id=5UXDJ26446">
+    <meta name="apple-itunes-app" content="app-id=6754914067">
 
     <style>
         body {
@@ -112,10 +112,11 @@
     <script>
         const CONFIG = {
             androidPackage: 'com.msar.app',
-            iosAppId: 'com.msar.app',
+            iosAppId: '6754914067',
             playStoreUrl: 'https://play.google.com/store/apps/details?id=com.msar.app',
-            appStoreUrl: "https://apps.apple.com/app/com.msar.app/id6754914067",
-            intentUrl: 'intent://ibr7eem99.github.io/#Intent;scheme=https;package=com.msar.app;end'
+            appStoreUrl: 'https://apps.apple.com/app/id6754914067',
+            intentUrl: 'intent://ibr7eem99.github.io/#Intent;scheme=https;package=com.msar.app;end',
+            deepLink: 'https://ibr7eem99.github.io/'
         };
 
         function getMobileOS() {
@@ -147,26 +148,58 @@
             document.getElementById('message').style.display = 'block';
         }
 
-        // Try to open app first, then fallback to store
-        function tryOpenAppThenStore(storeUrl, intentUrl) {
+        function tryOpenApp(deepLink, onFail) {
+            const startTime = Date.now();
+            let hasFocusChanged = false;
+
+            const visibilityHandler = () => {
+                hasFocusChanged = true;
+            };
+
+            const blurHandler = () => {
+                hasFocusChanged = true;
+            };
+
+            const pagehideHandler = () => {
+                hasFocusChanged = true;
+            };
+
+            document.addEventListener('visibilitychange', visibilityHandler);
+            window.addEventListener('blur', blurHandler);
+            window.addEventListener('pagehide', pagehideHandler);
+
+            window.location.href = deepLink;
+
+            setTimeout(() => {
+                document.removeEventListener('visibilitychange', visibilityHandler);
+                window.removeEventListener('blur', blurHandler);
+                window.removeEventListener('pagehide', pagehideHandler);
+
+                if (hasFocusChanged || document.hidden) {
+                    console.log('✅ App opened successfully');
+                    return;
+                }
+
+                console.log('❌ App not installed or failed to open');
+                onFail();
+            }, 2500);
+        }
+
+        function goToStore(storeUrl) {
+            console.log('Going directly to store:', storeUrl);
+            window.location.href = storeUrl;
+        }
+
+        function tryOpenAppThenStore(storeUrl, deepLink) {
             const os = getMobileOS();
 
-            if (os === 'Android') {
-                window.location.href = intentUrl;
+            if (os === 'Android' || os === 'iOS') {
+                sessionStorage.removeItem('appOpenAttempted');
 
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        window.location.href = storeUrl;
-                    }
-                }, 1500);
-            } else if (os === 'iOS') {
-                window.location.href = 'https://ibr7eem99.github.io/';
-
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        window.location.href = storeUrl;
-                    }
-                }, 1500);
+                tryOpenApp(deepLink, () => {
+                    console.log('Redirecting to store...');
+                    window.location.href = storeUrl;
+                });
             } else {
                 window.open(storeUrl, '_blank');
             }
@@ -174,12 +207,24 @@
 
         document.getElementById('playStoreBtn').addEventListener('click', function (e) {
             e.preventDefault();
-            tryOpenAppThenStore(CONFIG.playStoreUrl, CONFIG.intentUrl);
+            const os = getMobileOS();
+
+            if (os === 'Android') {
+                tryOpenAppThenStore(CONFIG.playStoreUrl, CONFIG.intentUrl);
+            } else {
+                goToStore(CONFIG.playStoreUrl);
+            }
         });
 
         document.getElementById('appStoreBtn').addEventListener('click', function (e) {
             e.preventDefault();
-            tryOpenAppThenStore(CONFIG.appStoreUrl, 'https://ibr7eem99.github.io/');
+            const os = getMobileOS();
+
+            if (os === 'iOS') {
+                goToStore(CONFIG.appStoreUrl);
+            } else {
+                goToStore(CONFIG.appStoreUrl);
+            }
         });
 
         function openApp() {
@@ -197,19 +242,12 @@
                     showStoreButtons();
                 }, 3000);
 
-            } else if (os === 'iOS') { 
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = 'https://ibr7eem99.github.io/';
-                document.body.appendChild(iframe);
-
-                setTimeout(() => {
-                    document.body.removeChild(iframe);
+            } else if (os === 'iOS') {
+                tryOpenApp(CONFIG.deepLink, () => {
                     showStoreButtons();
-                }, 2000);
+                });
 
             } else {
-                // Desktop or other platforms
                 document.querySelector('.loader').style.display = 'none';
                 document.getElementById('status').textContent = 'This link is designed for mobile devices.';
                 showStoreButtons();
